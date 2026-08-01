@@ -53,14 +53,69 @@ function isObject(value: unknown): value is Record<PropertyKey, unknown> {
   return prototype === Object.prototype || prototype === null;
 }
 
-const stateWatchers = new WeakMap<ReactiveObject<unknown>, Watcher<unknown>>();
+const stateWatchers = new WeakMap<
+  ReactiveObject<unknown>,
+  Map<symbol, InternalWatcher<unknown>>
+>();
+const knownStates = new WeakSet<ReactiveObject<unknown>>();
+
+function getWatchers<T>(
+  state: ReactiveObject<T>,
+): Map<symbol, InternalWatcher<T>> {
+  const stateKey = state as ReactiveObject<unknown>;
+  let watchers = stateWatchers.get(stateKey);
+
+  if (!watchers) {
+    watchers = new Map();
+    stateWatchers.set(stateKey, watchers);
+  }
+
+  return watchers as Map<symbol, InternalWatcher<T>>;
+}
+
+function notify<T>(
+  state: ReactiveObject<T>,
+  current: ReactiveObject<T>,
+  previous: ReactiveObject<T>,
+) {
+  const watchers = getWatchers(state);
+
+  watchers.forEach(({ callback, options, key }) => {
+    callback(current, previous);
+
+    if (options.once) {
+      watchers.delete(key);
+    }
+  });
+}
+
+function subscribe<T>(
+  state: ReactiveObject<T>,
+  callback: WatcherCallback<T>,
+  options: WatcherOptions = {},
+): () => void {
+  const watchers = getWatchers(state);
+  const key = Symbol();
+  watchers.set(key, { callback, options, key });
+
+  if (options.immediate) {
+    const current = { ...state };
+    callback(current, null);
+
+    if (options.once) {
+      watchers.delete(key);
+    }
+  }
+
+  return () => {
+    watchers.delete(key);
+  };
+}
 
 /** Creates a reactive state container along with a watcher for that state. */
 export function createState<T>(
   initialState: T,
 ): [ReactiveObject<T>, Watcher<T>] {
-  const watchers = new Map<symbol, InternalWatcher<T>>();
-
   function reactive<TTarget extends object>(target: TTarget): TTarget {
     return new Proxy(target, {
       get(target, key, receiver) {
@@ -73,7 +128,7 @@ export function createState<T>(
         const didSet = Reflect.set(target, key, newValue, receiver);
 
         if (didSet) {
-          notify({ ...state }, previous);
+          notify(state, { ...state }, previous);
         }
 
         return didSet;
@@ -81,39 +136,14 @@ export function createState<T>(
     });
   }
 
-  function notify(current: ReactiveObject<T>, previous: ReactiveObject<T>) {
-    watchers.forEach(({ callback, options, key }) => {
-      callback(current, previous);
-
-      if (options.once) {
-        watchers.delete(key);
-      }
-    });
-  }
-
-  function watch(callback: WatcherCallback<T>, options: WatcherOptions = {}) {
-    const key = Symbol();
-    watchers.set(key, { callback, options, key });
-
-    if (options?.immediate) {
-      const current = { ...state };
-      callback(current, null);
-
-      if (options?.once) {
-        watchers.delete(key);
-      }
-    }
-
-    return () => {
-      watchers.delete(key);
-    };
-  }
-
   const state = reactive({
     value: initialState,
   });
 
-  stateWatchers.set(state, watch as Watcher<unknown>);
+  knownStates.add(state as ReactiveObject<unknown>);
+
+  const watch: Watcher<T> = (callback, options) =>
+    subscribe(state, callback, options);
 
   return [state, watch];
 }
@@ -126,12 +156,10 @@ export function watch<TSources extends readonly WatchGetter<unknown>[]>(
 ): () => void {
   const states = sources.map((getState) => getState());
 
-  const sourceWatchers = states.map((sourceState) => {
-    const sourceWatcher = stateWatchers.get(sourceState);
-    if (!sourceWatcher) {
+  states.forEach((sourceState) => {
+    if (!knownStates.has(sourceState)) {
       throw new Error("watch(): source was not created via createState()");
     }
-    return sourceWatcher;
   });
 
   let previous: WatchValues<TSources> | null = null;
@@ -153,8 +181,8 @@ export function watch<TSources extends readonly WatchGetter<unknown>[]>(
     }
   }
 
-  const unsubscribes = sourceWatchers.map((sourceWatcher) =>
-    sourceWatcher(handleChange),
+  const unsubscribes = states.map((sourceState) =>
+    subscribe(sourceState, handleChange),
   );
 
   if (options.immediate) {
