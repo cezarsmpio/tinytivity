@@ -2,12 +2,12 @@
 
 Create reactive states in JavaScript.
 
-- **Zero dependencies**
-- **Super tiny**
-- **Fully typed**
+- Zero dependencies
+- Super tiny
+- Fully typed
 
 > [!WARNING]
-> Use this library in production **at your own risk**. It hasn't been battle-tested at scale and is intended for **small applications**, prototypes, and side projects — not mission-critical systems.
+> Use this library in production at your own risk. It hasn't been battle-tested at scale and is meant for small applications, prototypes, and side projects, not mission-critical systems.
 
 ## Installation
 
@@ -46,7 +46,7 @@ const [count, watchCount] = createState(0);
 console.log(count.value); // 0
 ```
 
-The reactive object always exposes its value through `.value`, regardless of whether the value is a primitive (`string`, `number`, `boolean`, `null`, `undefined`, `symbol`) or an object (`object`, `array`, `Map`, `Set`, `Date`, etc).
+The reactive object always exposes its value through `.value`, whether the value is a primitive (`string`, `number`, `boolean`, `null`, `undefined`, `symbol`) or an object (`object`, `array`, `Map`, `Set`, `Date`, etc).
 
 ### Updating a state
 
@@ -69,18 +69,18 @@ user.value.address.city = "LA"; // triggers watchers, nested changes work too
 
 ### Limitations
 
-Only **assignments** are tracked. Mutating methods on arrays, `Map`, or `Set` — anything that changes internal state without going through a property `set` — are **not** detected:
+Only assignments are tracked. Mutating methods on arrays, `Map`, or `Set`, anything that changes internal state without going through a property `set`, are not detected:
 
 ```ts
 const [items, watchItems] = createState({ list: [1, 2, 3] });
 
-items.value.list.push(4); // ❌ does NOT notify watchers
-items.value.list = [...items.value.list, 4]; // ✅ notifies watchers
+items.value.list.push(4); // does NOT notify watchers
+items.value.list = [...items.value.list, 4]; // notifies watchers
 ```
 
-The same applies to `Map`/`Set` mutator methods like `.set()`, `.add()`, `.delete()`, and `.clear()` — reassign the whole value instead.
+The same applies to `Map`/`Set` mutator methods like `.set()`, `.add()`, `.delete()`, and `.clear()`. Reassign the whole value instead.
 
-Also note that non-plain objects (class instances, `Date`, `Map`, `Set`, etc.) are stored as-is and are not made deeply reactive — only plain objects (`{}`) are recursively wrapped.
+Non-plain objects (class instances, `Date`, `Map`, `Set`, etc.) are stored as-is and aren't made deeply reactive. Only plain objects (`{}`) are recursively wrapped.
 
 ### Watching a state
 
@@ -122,7 +122,7 @@ unwatch(); // stops receiving future notifications
 
 ### Combining multiple states
 
-Use the standalone `watch()` function to observe several states created via `createState()` at once. It fires whenever **any** of the sources change, passing an array of current/previous snapshots in the same order as the sources:
+Use the standalone `watch()` function to observe several states created via `createState()` at once. It fires whenever any of the sources change, passing an array of current/previous snapshots in the same order as the sources:
 
 ```ts
 import { createState, watch } from "@cezarsmpio/tinytivity";
@@ -144,7 +144,7 @@ It supports the same `immediate` and `once` options as the per-state watcher, an
 
 ## Examples
 
-See the [examples/](examples/) folder for runnable code samples, including a counter, form-like nested state, and combining multiple states.
+See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
 
 ---
 

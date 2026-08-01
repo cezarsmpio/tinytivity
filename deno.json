@@ -9,5 +9,6 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
     "@std/async": "jsr:@std/async"
-  }
+  },
+  "exclude": ["examples"]
 }
