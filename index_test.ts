@@ -1,6 +1,6 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { delay } from "@std/async";
-import { createState } from "./index.ts";
+import { createState, watch } from "./index.ts";
 import { waitFor } from "./test_utils.ts";
 
 const primitiveCases: Array<[string, unknown, unknown]> = [
@@ -219,5 +219,154 @@ Deno.test(
 
     assertEquals(callCount, 0);
     assertEquals(state.value.items, [1]);
+  },
+);
+
+Deno.test("watch() notifies when any of multiple sources change", async () => {
+  const [user] = createState({ name: "Alice" });
+  const [settings] = createState({ theme: "dark" });
+  let callCount = 0;
+
+  watch([() => user, () => settings], () => {
+    callCount++;
+  });
+
+  user.value = { name: "Bob" };
+  settings.value = { theme: "light" };
+
+  await delay(50);
+
+  assertEquals(callCount, 2);
+});
+
+Deno.test(
+  "watch() previous is null on the first change without immediate",
+  async () => {
+    const [appName] = createState("tinytivity");
+    const [user] = createState({ name: "Alice" });
+
+    await waitFor((resolve) => {
+      watch([() => appName, () => user], (current, previous) => {
+        assertEquals(current, [
+          { value: "tinytivity" },
+          { value: { name: "Bob" } },
+        ]);
+        assertEquals(previous, null);
+        resolve();
+      });
+
+      user.value = { name: "Bob" };
+    });
+  },
+);
+
+Deno.test(
+  "watch() previous reflects the last known values on later changes",
+  async () => {
+    const [appName] = createState("tinytivity");
+    const [user] = createState({ name: "Alice" });
+    let callCount = 0;
+
+    await waitFor((resolve) => {
+      watch([() => appName, () => user], (current, previous) => {
+        callCount++;
+
+        if (callCount === 2) {
+          assertEquals(current, [
+            { value: "tinytivity" },
+            { value: { name: "Carol" } },
+          ]);
+          assertEquals(previous, [
+            { value: "tinytivity" },
+            { value: { name: "Bob" } },
+          ]);
+          resolve();
+        }
+      });
+
+      user.value = { name: "Bob" };
+      user.value = { name: "Carol" };
+    });
+  },
+);
+
+Deno.test("watch() immediate option fires once at registration", async () => {
+  const [appName] = createState("tinytivity");
+  const [user] = createState({ name: "Alice" });
+  let callCount = 0;
+
+  watch(
+    [() => appName, () => user],
+    (current, previous) => {
+      callCount++;
+      assertEquals(current, [
+        { value: "tinytivity" },
+        { value: { name: "Alice" } },
+      ]);
+      assertEquals(previous, null);
+    },
+    { immediate: true },
+  );
+
+  await delay(50);
+
+  assertEquals(callCount, 1);
+});
+
+Deno.test(
+  "watch() once option fires only once total across all sources",
+  async () => {
+    const [appName] = createState("tinytivity");
+    const [user] = createState({ name: "Alice" });
+    let callCount = 0;
+
+    watch(
+      [() => appName, () => user],
+      () => {
+        callCount++;
+      },
+      { once: true },
+    );
+
+    appName.value = "changed";
+    user.value = { name: "Bob" };
+
+    await delay(50);
+
+    assertEquals(callCount, 1);
+  },
+);
+
+Deno.test(
+  "watch() unsubscribe stops notifications from all sources",
+  async () => {
+    const [appName] = createState("tinytivity");
+    const [user] = createState({ name: "Alice" });
+    let callCount = 0;
+
+    const unsubscribe = watch([() => appName, () => user], () => {
+      callCount++;
+    });
+
+    unsubscribe();
+    appName.value = "changed";
+    user.value = { name: "Bob" };
+
+    await delay(50);
+
+    assertEquals(callCount, 0);
+  },
+);
+
+Deno.test(
+  "watch() throws when a source was not created via createState()",
+  () => {
+    assertThrows(
+      () => {
+        watch([() => ({ value: "not a real state" })], () => {});
+      },
+      Error,
+      "watch(): source was not created via createState()",
+    );
   },
 );
