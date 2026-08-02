@@ -33,7 +33,7 @@ jobs:
         run: deno bump-version --base=main
 
       - name: Release
-        run: npx jsr publish
+        run: deno publish
 
       - name: Commit & Push new version
         uses: EndBug/add-and-commit@v10
