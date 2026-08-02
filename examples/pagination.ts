@@ -27,7 +27,10 @@ async function fetchProducts(page: number, pageSize: number) {
 
   const items: Product[] = Array.from(
     { length: Math.min(pageSize, totalItems - start) },
-    (_, index) => ({ id: start + index + 1, name: `Product ${start + index + 1}` }),
+    (_, index) => ({
+      id: start + index + 1,
+      name: `Product ${start + index + 1}`,
+    }),
   );
 
   return { items, totalItems };
@@ -53,7 +56,10 @@ watchProducts((current) => {
   }
 
   const totalPages = Math.ceil(totalItems / pageSize);
-  console.log(`page ${page} of ${totalPages}:`, items.map((item) => item.name));
+  console.log(
+    `page ${page} of ${totalPages}:`,
+    items.map((item) => item.name),
+  );
 });
 
 await loadPage(1);

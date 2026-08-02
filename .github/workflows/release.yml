@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: "2.9.4"
+
+      - name: Bump version
+        run: deno bump-version --base=main
+
+      - name: Release
+        run: npx jsr publish
+
+      - name: Commit & Push new version
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: "deno.json"
+          message: "chore: bump version"
