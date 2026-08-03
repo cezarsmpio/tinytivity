@@ -142,6 +142,28 @@ unwatch();
 
 It supports the same `immediate` and `once` options as the per-state watcher, and throws if any source wasn't created via `createState()`.
 
+## Benchmarks
+
+Run the benchmark suite with Deno:
+
+```sh
+deno bench benchmarks.ts
+```
+
+The suite measures state creation and reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-08-03 using Deno 2.9.4 on an Apple M2 produced:
+
+| benchmark                                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| ------------------------------------------ | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
+| createState                                |        103.6 ns |     9,652,000 | ( 77.5 ns … 116.6 ns) | 109.7 ns | 114.5 ns | 115.1 ns |
+| read state value                           |         17.0 ns |    58,930,000 | ( 16.8 ns …  21.8 ns) |  16.9 ns |  19.1 ns |  20.1 ns |
+| assign state value                         |        724.2 ns |     1,381,000 | (717.1 ns … 750.4 ns) | 725.6 ns | 750.4 ns | 750.4 ns |
+| assign state value with one watcher        |        736.8 ns |     1,357,000 | (729.5 ns … 775.8 ns) | 738.6 ns | 775.8 ns | 775.8 ns |
+| assign nested state value                  |        813.9 ns |     1,229,000 | (807.4 ns … 862.3 ns) | 814.7 ns | 862.3 ns | 862.3 ns |
+| assign state value with ten watchers       |        878.4 ns |     1,138,000 | (871.8 ns … 900.4 ns) | 879.6 ns | 900.4 ns | 900.4 ns |
+| assign state value with combined watcher   |          1.3 µs |       774,700 | (  1.3 µs …   1.4 µs) |   1.3 µs |   1.4 µs |   1.4 µs |
+
+Benchmark results vary with the Deno version, operating system, and hardware. Re-run the command above when comparing changes.
+
 ## Examples
 
 See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
