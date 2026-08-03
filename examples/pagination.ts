@@ -1,4 +1,4 @@
-import { createState } from "@cezarsmpio/tinytivity";
+import { createState } from "../index.ts";
 
 type Product = { id: number; name: string };
 

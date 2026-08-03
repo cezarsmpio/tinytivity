@@ -1,4 +1,4 @@
-import { createState, watch } from "@cezarsmpio/tinytivity";
+import { createState, watch } from "../index.ts";
 
 const [user] = createState({ name: "Alice" });
 const [theme] = createState<"dark" | "light">("dark");

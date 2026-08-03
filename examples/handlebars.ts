@@ -1,5 +1,5 @@
-import { createState } from "@cezarsmpio/tinytivity";
 import Handlebars from "handlebars";
+import { createState } from "../index.ts";
 
 const [user, watchUser] = createState({
   name: "John",
