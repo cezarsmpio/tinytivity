@@ -108,6 +108,16 @@ watchCount((current) => console.log(current.value), {
 });
 ```
 
+Watcher callbacks may be async, but notifications are not awaited:
+
+```ts
+watchCount(async (current) => {
+  await saveCount(current.value);
+});
+```
+
+The watcher is considered notified as soon as the callback returns its promise. Use `try/catch` inside the callback to handle async errors; rejected promises are not handled by `tinytivity`.
+
 ### Unsubscribing
 
 Every `watch` call returns an unsubscribe function:
