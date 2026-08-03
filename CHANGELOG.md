@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/cezarsmpio/tinytivity/compare/v1.1.6...v1.2.0) (2026-08-03)
+
+
+### Features
+
+* improve support for async watcher callbacks ([#6](https://github.com/cezarsmpio/tinytivity/issues/6)) ([03d492a](https://github.com/cezarsmpio/tinytivity/commit/03d492a7b548ce7cc08791e4b8da4b174fc9ae51))
+
 ### [1.1.6](https://github.com/cezarsmpio/tinytivity/compare/v1.1.5...v1.1.6) (2026-08-03)
 
 ### [1.1.5](https://github.com/cezarsmpio/tinytivity/compare/v1.1.4...v1.1.5) (2026-08-03)
