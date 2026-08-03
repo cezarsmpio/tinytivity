@@ -55,36 +55,34 @@ function isObject(value: unknown): value is Record<PropertyKey, unknown> {
 
 const stateWatchers = new WeakMap<
   ReactiveObject<unknown>,
-  Map<symbol, InternalWatcher<unknown>>
+  Set<InternalWatcher<unknown>>
 >();
 const knownStates = new WeakSet<ReactiveObject<unknown>>();
 
-function getWatchers<T>(
-  state: ReactiveObject<T>,
-): Map<symbol, InternalWatcher<T>> {
+function getWatchers<T>(state: ReactiveObject<T>): Set<InternalWatcher<T>> {
   const stateKey = state as ReactiveObject<unknown>;
   let watchers = stateWatchers.get(stateKey);
 
   if (!watchers) {
-    watchers = new Map();
+    watchers = new Set();
     stateWatchers.set(stateKey, watchers);
   }
 
-  return watchers as Map<symbol, InternalWatcher<T>>;
+  return watchers as Set<InternalWatcher<T>>;
 }
 
 function notify<T>(
   state: ReactiveObject<T>,
   current: ReactiveObject<T>,
   previous: ReactiveObject<T>,
+  watchers = getWatchers(state),
 ) {
-  const watchers = getWatchers(state);
-
-  watchers.forEach(({ callback, options, key }) => {
+  watchers.forEach((watcher) => {
+    const { callback, options } = watcher;
     callback(current, previous);
 
     if (options.once) {
-      watchers.delete(key);
+      watchers.delete(watcher);
     }
   });
 }
@@ -96,19 +94,20 @@ function subscribe<T>(
 ): () => void {
   const watchers = getWatchers(state);
   const key = Symbol();
-  watchers.set(key, { callback, options, key });
+  const watcher = { callback, options, key };
+  watchers.add(watcher);
 
   if (options.immediate) {
     const current = { ...state };
     callback(current, null);
 
     if (options.once) {
-      watchers.delete(key);
+      watchers.delete(watcher);
     }
   }
 
   return () => {
-    watchers.delete(key);
+    watchers.delete(watcher);
   };
 }
 
@@ -132,11 +131,12 @@ export function createState<T>(
         return isObject(value) ? reactive(value) : value;
       },
       set(target, key, newValue, receiver) {
-        const previous = { ...state };
+        const watchers = stateWatchers.get(state);
+        const previous = watchers?.size ? { ...state } : undefined;
         const didSet = Reflect.set(target, key, newValue, receiver);
 
-        if (didSet) {
-          notify(state, { ...state }, previous);
+        if (didSet && previous) {
+          notify(state, { ...state }, previous, watchers);
         }
 
         return didSet;
@@ -186,21 +186,31 @@ export function watch<TSources extends readonly WatchGetter<unknown>[]>(
     unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
-  function handleChange() {
-    const current = states.map((sourceState) => ({
-      ...sourceState,
-    })) as WatchValues<TSources>;
+  function handleChange(
+    changedIndex?: number,
+    changedCurrent?: ReactiveObject<unknown>,
+  ) {
+    const current = (
+      previous
+        ? [...previous]
+        : states.map((sourceState) => ({ ...sourceState }))
+    ) as Array<ReactiveObject<unknown>>;
 
-    callback(current, previous);
-    previous = current;
+    if (changedIndex !== undefined && changedCurrent) {
+      current[changedIndex] = changedCurrent;
+    }
+
+    const typedCurrent = current as WatchValues<TSources>;
+    callback(typedCurrent, previous);
+    previous = typedCurrent;
 
     if (options.once) {
       unsubscribeAll();
     }
   }
 
-  const unsubscribes = states.map((sourceState) =>
-    subscribe(sourceState, handleChange),
+  const unsubscribes = states.map((sourceState, index) =>
+    subscribe(sourceState, (current) => handleChange(index, current)),
   );
 
   if (options.immediate) {
