@@ -2,14 +2,24 @@ import { createState, watch } from "./index.ts";
 
 let sink = 0;
 
-Deno.bench("createState", () => {
+Deno.bench("createState with primitive value", () => {
   const [state] = createState(0);
   sink += state.value;
+});
+
+Deno.bench("createState with nested object", () => {
+  const [state] = createState({ user: { name: "Alice" } });
+  sink += state.value.user.name.length;
 });
 
 const [readState] = createState(0);
 Deno.bench("read state value", () => {
   sink += readState.value;
+});
+
+const [nestedReadState] = createState({ user: { profile: { name: "Alice" } } });
+Deno.bench("read nested state value", () => {
+  sink += nestedReadState.value.user.profile.name.length;
 });
 
 const [assignState] = createState(0);
