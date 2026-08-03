@@ -155,6 +155,47 @@ Deno.test("unwatch stops future notifications", async () => {
   assertEquals(callCount, 1);
 });
 
+Deno.test("preserves the latest value after unobserved mutations", () => {
+  const [state, watch] = createState(0);
+
+  state.value = 1;
+
+  watch((current, previous) => {
+    assertEquals(current.value, 2);
+    assertEquals(previous?.value, 1);
+  });
+
+  state.value = 2;
+});
+
+Deno.test("once removes only the matching watcher", () => {
+  const [state, watch] = createState(0);
+  let onceCalls = 0;
+  let regularCalls = 0;
+
+  watch(() => onceCalls++, { once: true });
+  watch(() => regularCalls++);
+
+  state.value = 1;
+  state.value = 2;
+
+  assertEquals(onceCalls, 1);
+  assertEquals(regularCalls, 2);
+});
+
+Deno.test("can unsubscribe another watcher during notification", () => {
+  const [state, watch] = createState(0);
+  let secondCalls = 0;
+
+  let unsubscribeSecond = () => {};
+  watch(() => unsubscribeSecond());
+  unsubscribeSecond = watch(() => secondCalls++);
+
+  state.value = 1;
+
+  assertEquals(secondCalls, 0);
+});
+
 Deno.test("multiple watchers are notified independently", async () => {
   const [state, watch] = createState(0);
   let firstCallCount = 0;
@@ -243,6 +284,18 @@ Deno.test("watch() notifies when any of multiple sources change", async () => {
   await delay(50);
 
   assertEquals(callCount, 2);
+});
+
+Deno.test("combined watch preserves unchanged source values", () => {
+  const [first] = createState("first");
+  const [second] = createState("second");
+
+  watch([() => first, () => second], (current) => {
+    assertEquals(current[0].value, "first");
+    assertEquals(current[1].value, "updated");
+  });
+
+  second.value = "updated";
 });
 
 Deno.test(

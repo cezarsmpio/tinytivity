@@ -159,15 +159,15 @@ The suite measures primitive and nested-object state creation, reads, direct and
 
 | benchmark                                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
 | ------------------------------------------ | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
-| createState with primitive value           |        102.5 ns |     9,760,000 | ( 77.7 ns … 116.2 ns) | 107.9 ns | 115.1 ns | 116.1 ns |
-| createState with nested object             |        241.1 ns |     4,148,000 | (229.4 ns … 271.4 ns) | 244.3 ns | 261.4 ns | 265.3 ns |
-| read state value                           |         17.6 ns |    56,740,000 | ( 17.3 ns …  23.9 ns) |  17.5 ns |  20.4 ns |  21.0 ns |
-| read nested state value                    |        100.2 ns |     9,984,000 | ( 99.3 ns … 109.8 ns) | 100.0 ns | 105.3 ns | 109.6 ns |
-| assign state value                         |        711.3 ns |     1,406,000 | (706.0 ns … 738.2 ns) | 713.0 ns | 738.2 ns | 738.2 ns |
-| assign state value with one watcher        |        730.3 ns |     1,369,000 | (721.5 ns … 771.2 ns) | 732.1 ns | 771.2 ns | 771.2 ns |
-| assign nested state value                  |        775.9 ns |     1,289,000 | (769.6 ns … 806.9 ns) | 777.0 ns | 806.9 ns | 806.9 ns |
-| assign state value with ten watchers       |        869.3 ns |     1,150,000 | (863.1 ns … 915.5 ns) | 871.3 ns | 915.5 ns | 915.5 ns |
-| assign state value with combined watcher   |          1.3 µs |       782,000 | (  1.3 µs …   1.3 µs) |   1.3 µs |   1.3 µs |   1.3 µs |
+| createState with primitive value           |        102.0 ns |     9,803,000 | ( 76.4 ns … 115.9 ns) | 107.5 ns | 111.0 ns | 114.0 ns |
+| createState with nested object             |        240.0 ns |     4,167,000 | (227.7 ns … 281.9 ns) | 244.5 ns | 261.7 ns | 262.0 ns |
+| read state value                           |         17.5 ns |    57,160,000 | ( 17.3 ns …  26.0 ns) |  17.4 ns |  20.4 ns |  20.6 ns |
+| read nested state value                    |        100.2 ns |     9,985,000 | ( 99.3 ns … 111.9 ns) |  99.8 ns | 105.7 ns | 108.2 ns |
+| assign state value                         |        158.5 ns |     6,308,000 | (157.8 ns … 173.3 ns) | 158.3 ns | 164.7 ns | 168.1 ns |
+| assign state value with one watcher        |        735.4 ns |     1,360,000 | (730.4 ns … 756.9 ns) | 736.8 ns | 756.9 ns | 756.9 ns |
+| assign nested state value                  |        191.2 ns |     5,229,000 | (189.5 ns … 208.9 ns) | 191.7 ns | 200.6 ns | 205.3 ns |
+| assign state value with ten watchers       |        874.9 ns |     1,143,000 | (867.4 ns … 903.9 ns) | 876.8 ns | 903.9 ns | 903.9 ns |
+| assign state value with combined watcher   |        756.9 ns |     1,321,000 | (750.5 ns … 786.3 ns) | 758.6 ns | 786.3 ns | 786.3 ns |
 
 Benchmark results vary with the Deno version, operating system, and hardware. Re-run the command above when comparing changes.
 
