@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { assertEquals, assertStrictEquals, assertThrows } from "@std/assert";
 import { delay } from "@std/async";
 import { createState, watch } from "./index.ts";
 import { waitFor } from "./test_utils.ts";
@@ -63,6 +63,12 @@ Deno.test("can mutate nested object values", () => {
   state.value.count = 1;
 
   assertEquals(state.value, { count: 1 });
+});
+
+Deno.test("reuses proxies for repeated nested object reads", () => {
+  const [state] = createState({ user: { name: "Alice" } });
+
+  assertStrictEquals(state.value.user, state.value.user);
 });
 
 Deno.test("can watch mutations", async () => {
