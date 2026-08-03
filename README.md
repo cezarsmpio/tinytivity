@@ -142,6 +142,11 @@ unwatch();
 
 It supports the same `immediate` and `once` options as the per-state watcher, and throws if any source wasn't created via `createState()`.
 
+## Examples
+
+See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
+
+
 ## Benchmarks
 
 Run the benchmark suite with Deno:
@@ -150,23 +155,21 @@ Run the benchmark suite with Deno:
 deno bench benchmarks.ts
 ```
 
-The suite measures state creation and reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-08-03 using Deno 2.9.4 on an Apple M2 produced:
+The suite measures primitive and nested-object state creation, reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-08-04 using Deno 2.9.4 on an Apple M2 produced:
 
 | benchmark                                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
 | ------------------------------------------ | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
-| createState                                |        103.6 ns |     9,652,000 | ( 77.5 ns … 116.6 ns) | 109.7 ns | 114.5 ns | 115.1 ns |
-| read state value                           |         17.0 ns |    58,930,000 | ( 16.8 ns …  21.8 ns) |  16.9 ns |  19.1 ns |  20.1 ns |
-| assign state value                         |        724.2 ns |     1,381,000 | (717.1 ns … 750.4 ns) | 725.6 ns | 750.4 ns | 750.4 ns |
-| assign state value with one watcher        |        736.8 ns |     1,357,000 | (729.5 ns … 775.8 ns) | 738.6 ns | 775.8 ns | 775.8 ns |
-| assign nested state value                  |        813.9 ns |     1,229,000 | (807.4 ns … 862.3 ns) | 814.7 ns | 862.3 ns | 862.3 ns |
-| assign state value with ten watchers       |        878.4 ns |     1,138,000 | (871.8 ns … 900.4 ns) | 879.6 ns | 900.4 ns | 900.4 ns |
-| assign state value with combined watcher   |          1.3 µs |       774,700 | (  1.3 µs …   1.4 µs) |   1.3 µs |   1.4 µs |   1.4 µs |
+| createState with primitive value           |        102.5 ns |     9,760,000 | ( 77.7 ns … 116.2 ns) | 107.9 ns | 115.1 ns | 116.1 ns |
+| createState with nested object             |        241.1 ns |     4,148,000 | (229.4 ns … 271.4 ns) | 244.3 ns | 261.4 ns | 265.3 ns |
+| read state value                           |         17.6 ns |    56,740,000 | ( 17.3 ns …  23.9 ns) |  17.5 ns |  20.4 ns |  21.0 ns |
+| read nested state value                    |        100.2 ns |     9,984,000 | ( 99.3 ns … 109.8 ns) | 100.0 ns | 105.3 ns | 109.6 ns |
+| assign state value                         |        711.3 ns |     1,406,000 | (706.0 ns … 738.2 ns) | 713.0 ns | 738.2 ns | 738.2 ns |
+| assign state value with one watcher        |        730.3 ns |     1,369,000 | (721.5 ns … 771.2 ns) | 732.1 ns | 771.2 ns | 771.2 ns |
+| assign nested state value                  |        775.9 ns |     1,289,000 | (769.6 ns … 806.9 ns) | 777.0 ns | 806.9 ns | 806.9 ns |
+| assign state value with ten watchers       |        869.3 ns |     1,150,000 | (863.1 ns … 915.5 ns) | 871.3 ns | 915.5 ns | 915.5 ns |
+| assign state value with combined watcher   |          1.3 µs |       782,000 | (  1.3 µs …   1.3 µs) |   1.3 µs |   1.3 µs |   1.3 µs |
 
 Benchmark results vary with the Deno version, operating system, and hardware. Re-run the command above when comparing changes.
-
-## Examples
-
-See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
 
 ---
 

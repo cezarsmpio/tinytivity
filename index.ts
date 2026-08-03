@@ -116,8 +116,16 @@ function subscribe<T>(
 export function createState<T>(
   initialState: T,
 ): [ReactiveObject<T>, Watcher<T>] {
-  function reactive<TTarget extends object>(target: TTarget): TTarget {
-    return new Proxy(target, {
+  let proxyCache: WeakMap<object, object> | undefined;
+
+  function reactive<TTarget extends object>(
+    target: TTarget,
+    cache = true,
+  ): TTarget {
+    const cachedProxy = proxyCache?.get(target);
+    if (cachedProxy) return cachedProxy as TTarget;
+
+    const proxy = new Proxy(target, {
       get(target, key, receiver) {
         const value = Reflect.get(target, key, receiver);
 
@@ -134,11 +142,21 @@ export function createState<T>(
         return didSet;
       },
     });
+
+    if (cache) {
+      proxyCache ??= new WeakMap();
+      proxyCache.set(target, proxy);
+    }
+
+    return proxy;
   }
 
-  const state = reactive({
-    value: initialState,
-  });
+  const state = reactive(
+    {
+      value: initialState,
+    },
+    false,
+  );
 
   knownStates.add(state as ReactiveObject<unknown>);
 
