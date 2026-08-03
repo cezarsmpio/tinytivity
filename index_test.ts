@@ -113,6 +113,61 @@ Deno.test("watcher runs immediate", async () => {
   });
 });
 
+Deno.test("supports async watcher callbacks without awaiting them", async () => {
+  const [state, watch] = createState(0);
+  let completedValue: number | undefined;
+
+  watch(async (current) => {
+    await delay(10);
+    completedValue = current.value;
+  });
+
+  state.value = 1;
+  assertEquals(completedValue, undefined);
+
+  await delay(20);
+
+  assertEquals(completedValue, 1);
+});
+
+Deno.test("once async watchers unsubscribe when invoked", async () => {
+  const [state, watch] = createState(0);
+  let callCount = 0;
+
+  watch(
+    async () => {
+      callCount++;
+      await delay(10);
+    },
+    { once: true },
+  );
+
+  state.value = 1;
+  state.value = 2;
+
+  await delay(20);
+
+  assertEquals(callCount, 1);
+});
+
+Deno.test("unsubscribing an async watcher prevents later notifications", async () => {
+  const [state, watch] = createState(0);
+  let callCount = 0;
+
+  const unwatch = watch(async () => {
+    callCount++;
+    await delay(20);
+  });
+
+  state.value = 1;
+  unwatch();
+  state.value = 2;
+
+  await delay(30);
+
+  assertEquals(callCount, 1);
+});
+
 Deno.test("watcher runs only once", async () => {
   const [state, watch] = createState(0);
   let callCount = 0;
@@ -181,6 +236,44 @@ Deno.test("once removes only the matching watcher", () => {
 
   assertEquals(onceCalls, 1);
   assertEquals(regularCalls, 2);
+});
+
+Deno.test("once watcher is removed when its callback throws", () => {
+  const [state, watch] = createState(0);
+  let callCount = 0;
+
+  watch(
+    () => {
+      callCount++;
+      throw new Error("watcher failed");
+    },
+    { once: true },
+  );
+
+  assertThrows(() => (state.value = 1), Error, "watcher failed");
+  state.value = 2;
+
+  assertEquals(callCount, 1);
+});
+
+Deno.test("immediate once watcher is removed when its callback throws", () => {
+  const [, watch] = createState(0);
+  let callCount = 0;
+
+  assertThrows(
+    () =>
+      watch(
+        () => {
+          callCount++;
+          throw new Error("watcher failed");
+        },
+        { immediate: true, once: true },
+      ),
+    Error,
+    "watcher failed",
+  );
+
+  assertEquals(callCount, 1);
 });
 
 Deno.test("can unsubscribe another watcher during notification", () => {

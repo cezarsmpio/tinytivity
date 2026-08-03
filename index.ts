@@ -8,7 +8,7 @@ export type WatcherOptions = {
 export type WatcherCallback<T> = (
   current: ReactiveObject<T>,
   previous: ReactiveObject<T> | null,
-) => void;
+) => unknown;
 
 /** Internal bookkeeping entry for a single registered watcher. */
 export type InternalWatcher<T> = {
@@ -42,7 +42,7 @@ export type WatchValues<TSources extends readonly WatchGetter<unknown>[]> = {
 export type WatchCallback<TSources extends readonly WatchGetter<unknown>[]> = (
   current: WatchValues<TSources>,
   previous: WatchValues<TSources> | null,
-) => void;
+) => unknown;
 
 function isObject(value: unknown): value is Record<PropertyKey, unknown> {
   if (typeof value !== "object") return false;
@@ -79,10 +79,12 @@ function notify<T>(
 ) {
   watchers.forEach((watcher) => {
     const { callback, options } = watcher;
-    callback(current, previous);
-
-    if (options.once) {
-      watchers.delete(watcher);
+    try {
+      callback(current, previous);
+    } finally {
+      if (options.once) {
+        watchers.delete(watcher);
+      }
     }
   });
 }
@@ -99,10 +101,12 @@ function subscribe<T>(
 
   if (options.immediate) {
     const current = { ...state };
-    callback(current, null);
-
-    if (options.once) {
-      watchers.delete(watcher);
+    try {
+      callback(current, null);
+    } finally {
+      if (options.once) {
+        watchers.delete(watcher);
+      }
     }
   }
 
