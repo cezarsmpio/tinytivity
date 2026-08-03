@@ -1,6 +1,6 @@
 // This example targets a browser, not Deno - it needs a real `document`.
 // Bundle it or load it from an HTML page with <script type="module" src="./dom-counter.ts"></script>.
-import { createState } from "../index.ts";
+import { createState } from "@cezarsmpio/tinytivity";
 
 const [count, watchCount] = createState(0);
 

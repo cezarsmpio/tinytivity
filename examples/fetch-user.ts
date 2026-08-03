@@ -1,4 +1,4 @@
-import { createState } from "../index.ts";
+import { createState } from "@cezarsmpio/tinytivity";
 
 type UserState = {
   status: "idle" | "loading" | "success" | "error";

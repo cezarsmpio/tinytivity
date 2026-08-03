@@ -1,4 +1,4 @@
-import { createState } from "../index.ts";
+import { createState } from "@cezarsmpio/tinytivity";
 
 const [form, watchForm] = createState({
   name: "",
