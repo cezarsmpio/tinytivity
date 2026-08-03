@@ -7,11 +7,4 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* enable workspaces ([18a69f8](https://github.com/cezarsmpio/tinytivity/commit/18a69f803a5279215ac2f3fa438c41396f106832))
-* export watch method ([b6e1b77](https://github.com/cezarsmpio/tinytivity/commit/b6e1b776b445db229614df3df08eada1c22af953))
 * initial release ([e6bc512](https://github.com/cezarsmpio/tinytivity/commit/e6bc512a65f0e33e7a6040da6d77bb05250910fa))
-
-
-### Bug Fixes
-
-* testing bump version ([792ebbb](https://github.com/cezarsmpio/tinytivity/commit/792ebbba76fa53a150bc47d21d751b59da2186d3))

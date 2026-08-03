@@ -16,7 +16,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Checkout
@@ -29,14 +29,21 @@ jobs:
         with:
           deno-version: "2.9.4"
 
-      - name: Bump version
-        run: deno bump-version --base=main
-
-      - name: Release
-        run: deno publish
-
-      - name: Commit & Push new version
-        uses: EndBug/add-and-commit@v10
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          add: "deno.json"
-          message: "chore: bump version"
+          node-version: "24.19.0"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version & changelog
+        run: npx --yes standard-version
+
+      - name: Push release commit & tag
+        run: git push --follow-tags origin HEAD:main
+
+      - name: Publish to JSR
+        run: deno publish
