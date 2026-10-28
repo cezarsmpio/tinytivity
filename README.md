@@ -211,6 +211,8 @@ Releases are automated with [semantic-release](https://github.com/semantic-relea
 
 The workflow needs an `NPM_TOKEN` repository secret with publish rights for the `tinytivity` package. After the first publish you can switch to npm trusted publishing and remove the token.
 
+semantic-release pushes its release commit back to `main`, so GitHub Actions must be allowed to push to that branch. If branch protection blocks the bot, the release commit stays local to the runner and publishing fails.
+
 Use `feat:`, `fix:`, `perf:`, or a `BREAKING CHANGE:` footer, depending on the change. Commits such as `chore:` and `docs:` do not create a release.
 
 ---
