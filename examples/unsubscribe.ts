@@ -1,4 +1,4 @@
-import { createState } from "../index.ts";
+import { createState } from "../src/index.ts";
 
 const [count, watchCount] = createState(0);
 
