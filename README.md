@@ -173,15 +173,15 @@ The suite covers primitive and nested state creation, reads, direct and nested a
 
 | benchmark                                | samples | mean rate     | 95% CI                    | median rate   | warning       |
 | ---------------------------------------- | ------- | ------------- | ------------------------- | ------------- | ------------- |
-| createState with primitive value         | 50      | 7.06M ops/s   | 6.79M - 7.33M ops/s       | 7.06M ops/s   | noisy         |
-| createState with nested object           | 50      | 3.35M ops/s   | 3.30M - 3.39M ops/s       | 3.36M ops/s   |               |
-| read state value                         | 50      | 38.97M ops/s  | 38.55M - 39.39M ops/s     | 39.21M ops/s  | skewed        |
-| read nested state value                  | 50      | 6.75M ops/s   | 6.72M - 6.78M ops/s       | 6.76M ops/s   |               |
-| assign state value                       | 50      | 5.45M ops/s   | 5.39M - 5.51M ops/s       | 5.47M ops/s   |               |
-| assign state value with one watcher      | 50      | 1.15M ops/s   | 1.14M - 1.16M ops/s       | 1.16M ops/s   |               |
-| assign nested state value                | 50      | 4.35M ops/s   | 4.31M - 4.40M ops/s       | 4.35M ops/s   |               |
-| assign state value with ten watchers     | 50      | 990.91k ops/s | 983.19k - 998.64k ops/s   | 987.34k ops/s |               |
-| assign state value with combined watcher | 50      | 1.13M ops/s   | 1.12M - 1.14M ops/s       | 1.13M ops/s   |               |
+| createState with primitive value         | 50      | 6.89M ops/s   | 6.61M - 7.17M ops/s       | 6.83M ops/s   | noisy         |
+| createState with nested object           | 50      | 2.82M ops/s   | 2.67M - 2.97M ops/s       | 2.89M ops/s   | noisy, skewed |
+| read state value                         | 50      | 37.17M ops/s  | 36.67M - 37.67M ops/s     | 37.59M ops/s  |               |
+| read nested state value                  | 50      | 6.10M ops/s   | 5.84M - 6.36M ops/s       | 6.45M ops/s   | noisy, skewed |
+| assign state value                       | 50      | 5.16M ops/s   | 5.07M - 5.25M ops/s       | 5.24M ops/s   | noisy, skewed |
+| assign state value with one watcher      | 50      | 1.06M ops/s   | 1.04M - 1.07M ops/s       | 1.06M ops/s   |               |
+| assign nested state value                | 50      | 4.18M ops/s   | 4.11M - 4.25M ops/s       | 4.25M ops/s   | noisy         |
+| assign state value with ten watchers     | 50      | 921.18k ops/s | 913.08k - 929.28k ops/s   | 921.58k ops/s |               |
+| assign state value with combined watcher | 50      | 1.02M ops/s   | 1.01M - 1.04M ops/s       | 1.03M ops/s   | noisy, skewed |
 
 Benchmark results vary with the Node.js version, operating system, and hardware. The `noisy` and `skewed` warnings come from the built-in reporter; rerun the suite or increase the sample count before comparing small differences.
 
