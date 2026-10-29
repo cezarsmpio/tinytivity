@@ -28,9 +28,6 @@ jobs:
       - name: Check coverage
         run: npm run test:coverage
 
-      - name: Build
-        run: npm run build
-
       - name: Smoke test the built package
         run: npm run test:dist
 
@@ -39,3 +36,36 @@ jobs:
 
       - name: Benchmark smoke test
         run: npm run bench:ci
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 1
+
+  compat:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18", "20", "22", "24", "26"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Run tests on Node ${{ matrix.node-version }}
+        run: npm run test:compat

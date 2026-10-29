@@ -1,8 +1,5 @@
-export function waitFor(
-  executor: (resolve: () => void) => void,
-  timeoutMs = 1_000,
-): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+export function waitFor(executor, timeoutMs = 1_000) {
+  return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error("callback was not called"));
     }, timeoutMs);

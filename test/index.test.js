@@ -1,12 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
-import { createState, watch } from "../src/index.ts";
-import { waitFor } from "./utils.ts";
+import { createState, watch } from "tinytivity";
+import { waitFor } from "./utils.js";
 
-type PrimitiveCase = { label: string; initial: unknown; next: unknown };
-
-const primitiveCases: PrimitiveCase[] = [
+const primitiveCases = [
   { label: "string", initial: "hello world", next: "goodbye world" },
   { label: "number", initial: 123, next: 456 },
   { label: "null", initial: null, next: "no longer null" },
@@ -15,9 +13,7 @@ const primitiveCases: PrimitiveCase[] = [
   { label: "symbol", initial: Symbol("a"), next: Symbol("b") },
 ];
 
-type ObjectCase = { label: string; initial: unknown; next: unknown };
-
-const objectCases: ObjectCase[] = [
+const objectCases = [
   { label: "plain object", initial: { hello: "world" }, next: { hello: "there" } },
   { label: "array", initial: ["hello", "world"], next: ["goodbye"] },
   { label: "date", initial: new Date(0), next: new Date() },
@@ -122,7 +118,7 @@ describe("watching a single state", () => {
 
   it("supports async watcher callbacks without awaiting them", async () => {
     const [state, watchState] = createState(0);
-    let completedValue: number | undefined;
+    let completedValue;
 
     watchState(async (current) => {
       await delay(10);
@@ -356,7 +352,7 @@ describe("watching a single state", () => {
   });
 
   it("mutating a non-plain nested value in place does not notify watchers", async () => {
-    const [state, watchState] = createState({ items: [] as number[] });
+    const [state, watchState] = createState({ items: [] });
     let callCount = 0;
 
     watchState(() => {

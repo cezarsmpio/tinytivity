@@ -1,7 +1,7 @@
 {
   "name": "tinytivity",
   "version": "1.2.0",
-  "description": "Tiny, zero-dependency reactive state for JavaScript, built for Node.js 26.",
+  "description": "Tiny, zero-dependency reactive state for JavaScript. Runs on Node.js 18 and newer.",
   "type": "module",
   "license": "MIT",
   "author": "Cezar Sampaio",
@@ -24,7 +24,7 @@
     "tiny"
   ],
   "engines": {
-    "node": ">=26.0.0"
+    "node": ">=18.0.0"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -49,8 +49,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "node --test test/index.test.ts",
-    "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 test/index.test.ts",
+    "test": "npm run build && node --test test/index.test.js",
+    "test:compat": "node --test test/index.test.js",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 test/index.test.js",
     "test:dist": "node scripts/smoke-dist.mjs",
     "bench": "node --experimental-bench --bench --bench-samples=50 --bench-warmup=20 benchmarks/index.bench.ts",
     "bench:ci": "node --experimental-bench --bench --bench-samples=5 --bench-warmup=2 benchmarks/index.bench.ts",

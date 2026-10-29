@@ -5,9 +5,10 @@ Create reactive states in JavaScript.
 - Zero dependencies
 - Super tiny
 - Fully typed
-- Built for Node.js 26
+- Runs on Node.js 18 and newer
 
 [![npm version](https://img.shields.io/npm/v/tinytivity.svg)](https://www.npmjs.com/package/tinytivity)
+[![Node.js](https://img.shields.io/node/v/tinytivity.svg)](https://www.npmjs.com/package/tinytivity)
 [![CI](https://github.com/cezarsmpio/tinytivity/actions/workflows/ci.yml/badge.svg)](https://github.com/cezarsmpio/tinytivity/actions/workflows/ci.yml)
 
 > [!WARNING]
@@ -19,9 +20,15 @@ Create reactive states in JavaScript.
 npm install tinytivity
 ```
 
-The package requires Node.js 26 or newer. It is ESM only and ships with TypeScript declarations.
+The package requires Node.js 18 or newer. It is ESM only and ships with TypeScript declarations.
 
 If you used the JSR package before, replace `jsr:@cezarsmpio/tinytivity` with `tinytivity`. Deno projects can import it as `npm:tinytivity`.
+
+### Compatibility
+
+CI runs the full test suite against the built package on Node.js 18, 20, 22, 24, and 26. The runtime code is plain JavaScript and has no Node-specific dependencies.
+
+The package is ESM only. Use `import` in every supported version. CommonJS projects can use dynamic `import()`, or `require()` on Node.js 20.19+, 22.12+, and 24+.
 
 ## Usage
 
@@ -147,7 +154,7 @@ It supports the same `immediate` and `once` options as the per-state watcher, an
 
 See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
 
-Run any example directly with Node.js 26:
+Run any example directly with Node.js 26, which can execute TypeScript source:
 
 ```sh
 node examples/counter.ts
@@ -161,33 +168,33 @@ node examples/pagination.ts
 
 ## Benchmarks
 
-Node.js 26 includes a benchmark runner. Run the suite with:
+Node.js 26 includes a benchmark runner. Benchmarks are a development-only tool and require Node.js 26.9 or newer. Run the suite with:
 
 ```sh
 npm run bench
 ```
 
-The benchmark runner was added in Node.js 26.9, so use that version or newer to run the suite.
-
 The suite covers primitive and nested state creation, reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-10-28 using Node 26.10.0 on an Apple M2 produced:
 
 | benchmark                                | samples | mean rate     | 95% CI                    | median rate   | warning       |
 | ---------------------------------------- | ------- | ------------- | ------------------------- | ------------- | ------------- |
-| createState with primitive value         | 50      | 6.89M ops/s   | 6.61M - 7.17M ops/s       | 6.83M ops/s   | noisy         |
-| createState with nested object           | 50      | 2.82M ops/s   | 2.67M - 2.97M ops/s       | 2.89M ops/s   | noisy, skewed |
-| read state value                         | 50      | 37.17M ops/s  | 36.67M - 37.67M ops/s     | 37.59M ops/s  |               |
-| read nested state value                  | 50      | 6.10M ops/s   | 5.84M - 6.36M ops/s       | 6.45M ops/s   | noisy, skewed |
-| assign state value                       | 50      | 5.16M ops/s   | 5.07M - 5.25M ops/s       | 5.24M ops/s   | noisy, skewed |
-| assign state value with one watcher      | 50      | 1.06M ops/s   | 1.04M - 1.07M ops/s       | 1.06M ops/s   |               |
-| assign nested state value                | 50      | 4.18M ops/s   | 4.11M - 4.25M ops/s       | 4.25M ops/s   | noisy         |
-| assign state value with ten watchers     | 50      | 921.18k ops/s | 913.08k - 929.28k ops/s   | 921.58k ops/s |               |
-| assign state value with combined watcher | 50      | 1.02M ops/s   | 1.01M - 1.04M ops/s       | 1.03M ops/s   | noisy, skewed |
+| createState with primitive value         | 50      | 7.08M ops/s   | 6.83M - 7.33M ops/s       | 6.96M ops/s   | noisy         |
+| createState with nested object           | 50      | 3.36M ops/s   | 3.30M - 3.43M ops/s       | 3.44M ops/s   | noisy, skewed |
+| read state value                         | 50      | 38.49M ops/s  | 37.95M - 39.02M ops/s     | 38.61M ops/s  | skewed        |
+| read nested state value                  | 50      | 7.01M ops/s   | 6.97M - 7.05M ops/s       | 7.01M ops/s   |               |
+| assign state value                       | 50      | 5.63M ops/s   | 5.56M - 5.70M ops/s       | 5.67M ops/s   |               |
+| assign state value with one watcher      | 50      | 1.13M ops/s   | 1.12M - 1.15M ops/s       | 1.14M ops/s   |               |
+| assign nested state value                | 50      | 4.49M ops/s   | 4.44M - 4.55M ops/s       | 4.54M ops/s   |               |
+| assign state value with ten watchers     | 50      | 954.88k ops/s | 939.62k - 970.14k ops/s   | 959.20k ops/s | noisy, skewed |
+| assign state value with combined watcher | 50      | 1.11M ops/s   | 1.10M - 1.12M ops/s       | 1.11M ops/s   |               |
 
 Benchmark results vary with the Node.js version, operating system, and hardware. The `noisy` and `skewed` warnings come from the built-in reporter; rerun the suite or increase the sample count before comparing small differences.
 
 ## Development
 
-The test suite runs TypeScript directly with Node's built-in test runner, so there is no build step during development:
+Development uses Node.js 26. The test suite runs against the built package with Node's built-in test runner.
+
+`npm test` builds the package first, then runs the tests:
 
 ```sh
 npm install
@@ -195,6 +202,8 @@ npm test
 npm run typecheck
 npm run test:coverage
 ```
+
+CI also runs `npm run test:compat` against the built package on Node.js 18, 20, 22, 24, and 26.
 
 Build the publishable package and smoke test the output with:
 
