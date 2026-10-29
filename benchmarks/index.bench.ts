@@ -189,7 +189,7 @@ const [firstState] = createState(0);
 const [secondState] = createState(0);
 
 watch([() => firstState, () => secondState], (current) => {
-  sink += current[0].value + current[1].value;
+  sink += current[0]!.value + current[1]!.value;
 });
 
 bench("assign state value with combined watcher", (context) => {

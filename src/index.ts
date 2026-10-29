@@ -171,7 +171,7 @@ export function createState<T>(
 }
 
 /** Watches whole states created independently via createState, combining their changes into one callback. */
-export function watch<const TSources extends readonly WatchGetter<unknown>[]>(
+export function watch<TSources extends readonly WatchGetter<unknown>[]>(
   sources: TSources,
   callback: WatchCallback<TSources>,
   options: WatcherOptions = {},
