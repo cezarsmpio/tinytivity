@@ -1,0 +1,74 @@
+{
+  "name": "tinytivity",
+  "version": "1.2.0",
+  "description": "Tiny, zero-dependency reactive state for JavaScript. Runs on Node.js 18 and newer.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Cezar Sampaio",
+  "homepage": "https://github.com/cezarsmpio/tinytivity#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cezarsmpio/tinytivity.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cezarsmpio/tinytivity/issues"
+  },
+  "keywords": [
+    "reactivity",
+    "reactive",
+    "state",
+    "state-management",
+    "proxy",
+    "typescript",
+    "zero-dependency",
+    "tiny"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/index.test.js",
+    "test:compat": "node --test test/index.test.js",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 test/index.test.js",
+    "test:dist": "node scripts/smoke-dist.mjs",
+    "bench": "node --experimental-bench --bench --bench-samples=50 --bench-warmup=20 benchmarks/index.bench.ts",
+    "bench:ci": "node --experimental-bench --bench --bench-samples=5 --bench-warmup=2 benchmarks/index.bench.ts",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build && npm run test:dist",
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^11.0.1",
+    "@semantic-release/github": "^12.0.10",
+    "@semantic-release/npm": "^13.2.0",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "@types/node": "^26.6.6",
+    "handlebars": "^4.7.8",
+    "semantic-release": "^25.0.9",
+    "typescript": "^7.0.2"
+  }
+}

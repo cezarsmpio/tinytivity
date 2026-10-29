@@ -1,4 +1,4 @@
-import { createState, watch } from "../index.ts";
+import { createState, watch } from "../src/index.ts";
 
 const [user] = createState({ name: "Alice" });
 const [theme] = createState<"dark" | "light">("dark");
