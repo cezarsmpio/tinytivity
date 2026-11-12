@@ -1,4 +1,4 @@
-import { createState } from "../index.ts";
+import { createState } from "../src/index.ts";
 
 type Product = { id: number; name: string };
 

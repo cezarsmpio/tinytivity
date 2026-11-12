@@ -5,32 +5,30 @@ Create reactive states in JavaScript.
 - Zero dependencies
 - Super tiny
 - Fully typed
+- Runs on Node.js 18 and newer
+
+[![npm version](https://img.shields.io/npm/v/tinytivity.svg)](https://www.npmjs.com/package/tinytivity)
+[![Node.js](https://img.shields.io/node/v/tinytivity.svg)](https://www.npmjs.com/package/tinytivity)
+[![CI](https://github.com/cezarsmpio/tinytivity/actions/workflows/ci.yml/badge.svg)](https://github.com/cezarsmpio/tinytivity/actions/workflows/ci.yml)
 
 > [!WARNING]
 > Use this library in production at your own risk. It hasn't been battle-tested at scale and is meant for small applications, prototypes, and side projects, not mission-critical systems.
 
 ## Installation
 
-`tinytivity` is published to [JSR](https://jsr.io) and works with npm-based package managers too.
-
-### JSR (Deno, or any JSR-compatible runtime)
-
 ```sh
-deno add jsr:@cezarsmpio/tinytivity
+npm install tinytivity
 ```
 
-### npm (Node.js, Bun, etc.)
+The package requires Node.js 18 or newer. It is ESM only and ships with TypeScript declarations.
 
-```sh
-npx jsr add @cezarsmpio/tinytivity
-```
+If you used the JSR package before, replace `jsr:@cezarsmpio/tinytivity` with `tinytivity`. Deno projects can import it as `npm:tinytivity`.
 
-Other npm-compatible package managers work the same way:
+### Compatibility
 
-```sh
-yarn dlx jsr add @cezarsmpio/tinytivity
-pnpm dlx jsr add @cezarsmpio/tinytivity
-```
+CI runs the full test suite against the built package on Node.js 18, 20, 22, 24, and 26. The runtime code is plain JavaScript and has no Node-specific dependencies.
+
+The package is ESM only. Use `import` in every supported version. CommonJS projects can use dynamic `import()`, or `require()` on Node.js 20.19+, 22.12+, and 24+.
 
 ## Usage
 
@@ -39,7 +37,7 @@ pnpm dlx jsr add @cezarsmpio/tinytivity
 `createState()` returns a tuple: a reactive object and a `watch` function scoped to it.
 
 ```ts
-import { createState } from "@cezarsmpio/tinytivity";
+import { createState } from "tinytivity";
 
 const [count, watchCount] = createState(0);
 
@@ -64,7 +62,7 @@ Plain objects (and plain objects nested inside them) are also reactive, so assig
 const [user, watchUser] = createState({ name: "Alice", address: { city: "NYC" } });
 
 user.value.name = "Bob"; // triggers watchers
-user.value.address.city = "LA"; // triggers watchers, nested changes work too
+user.value.address.city = "LA"; // nested changes work too
 ```
 
 ### Limitations
@@ -135,7 +133,7 @@ unwatch(); // stops receiving future notifications
 Use the standalone `watch()` function to observe several states created via `createState()` at once. It fires whenever any of the sources change, passing an array of current/previous snapshots in the same order as the sources:
 
 ```ts
-import { createState, watch } from "@cezarsmpio/tinytivity";
+import { createState, watch } from "tinytivity";
 
 const [user] = createState({ name: "Alice" });
 const [theme] = createState("dark");
@@ -156,30 +154,75 @@ It supports the same `immediate` and `once` options as the per-state watcher, an
 
 See the [examples/](examples/) folder for runnable code samples, including a counter, a form-like nested state, combining multiple states, DOM updates, data fetching, and pagination.
 
+Run any example directly with Node.js 26, which can execute TypeScript source:
+
+```sh
+node examples/counter.ts
+node examples/nested-form.ts
+node examples/combined-states.ts
+node examples/unsubscribe.ts
+node examples/pagination.ts
+```
+
+`examples/fetch-user.ts` needs network access. `examples/handlebars.ts` uses the `handlebars` dev dependency that is installed with `npm install`. `examples/dom-counter.ts` targets the browser and needs a real `document`.
 
 ## Benchmarks
 
-Run the benchmark suite with Deno:
+Node.js 26 includes a benchmark runner. Benchmarks are a development-only tool and require Node.js 26.9 or newer. Run the suite with:
 
 ```sh
-deno bench benchmarks.ts
+npm run bench
 ```
 
-The suite measures primitive and nested-object state creation, reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-08-04 using Deno 2.9.4 on an Apple M2 produced:
+The suite covers primitive and nested state creation, reads, direct and nested assignments, watcher fan-out, and combined-state notifications. A sample run on 2026-10-28 using Node 26.10.0 on an Apple M2 produced:
 
-| benchmark                                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
-| ------------------------------------------ | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
-| createState with primitive value           |        102.0 ns |     9,803,000 | ( 76.4 ns … 115.9 ns) | 107.5 ns | 111.0 ns | 114.0 ns |
-| createState with nested object             |        240.0 ns |     4,167,000 | (227.7 ns … 281.9 ns) | 244.5 ns | 261.7 ns | 262.0 ns |
-| read state value                           |         17.5 ns |    57,160,000 | ( 17.3 ns …  26.0 ns) |  17.4 ns |  20.4 ns |  20.6 ns |
-| read nested state value                    |        100.2 ns |     9,985,000 | ( 99.3 ns … 111.9 ns) |  99.8 ns | 105.7 ns | 108.2 ns |
-| assign state value                         |        158.5 ns |     6,308,000 | (157.8 ns … 173.3 ns) | 158.3 ns | 164.7 ns | 168.1 ns |
-| assign state value with one watcher        |        735.4 ns |     1,360,000 | (730.4 ns … 756.9 ns) | 736.8 ns | 756.9 ns | 756.9 ns |
-| assign nested state value                  |        191.2 ns |     5,229,000 | (189.5 ns … 208.9 ns) | 191.7 ns | 200.6 ns | 205.3 ns |
-| assign state value with ten watchers       |        874.9 ns |     1,143,000 | (867.4 ns … 903.9 ns) | 876.8 ns | 903.9 ns | 903.9 ns |
-| assign state value with combined watcher   |        756.9 ns |     1,321,000 | (750.5 ns … 786.3 ns) | 758.6 ns | 786.3 ns | 786.3 ns |
+| benchmark                                | samples | mean rate     | 95% CI                    | median rate   | warning       |
+| ---------------------------------------- | ------- | ------------- | ------------------------- | ------------- | ------------- |
+| createState with primitive value         | 50      | 7.08M ops/s   | 6.83M - 7.33M ops/s       | 6.96M ops/s   | noisy         |
+| createState with nested object           | 50      | 3.36M ops/s   | 3.30M - 3.43M ops/s       | 3.44M ops/s   | noisy, skewed |
+| read state value                         | 50      | 38.49M ops/s  | 37.95M - 39.02M ops/s     | 38.61M ops/s  | skewed        |
+| read nested state value                  | 50      | 7.01M ops/s   | 6.97M - 7.05M ops/s       | 7.01M ops/s   |               |
+| assign state value                       | 50      | 5.63M ops/s   | 5.56M - 5.70M ops/s       | 5.67M ops/s   |               |
+| assign state value with one watcher      | 50      | 1.13M ops/s   | 1.12M - 1.15M ops/s       | 1.14M ops/s   |               |
+| assign nested state value                | 50      | 4.49M ops/s   | 4.44M - 4.55M ops/s       | 4.54M ops/s   |               |
+| assign state value with ten watchers     | 50      | 954.88k ops/s | 939.62k - 970.14k ops/s   | 959.20k ops/s | noisy, skewed |
+| assign state value with combined watcher | 50      | 1.11M ops/s   | 1.10M - 1.12M ops/s       | 1.11M ops/s   |               |
 
-Benchmark results vary with the Deno version, operating system, and hardware. Re-run the command above when comparing changes.
+Benchmark results vary with the Node.js version, operating system, and hardware. The `noisy` and `skewed` warnings come from the built-in reporter; rerun the suite or increase the sample count before comparing small differences.
+
+## Development
+
+Development uses Node.js 26. The test suite runs against the built package with Node's built-in test runner.
+
+`npm test` builds the package first, then runs the tests:
+
+```sh
+npm install
+npm test
+npm run typecheck
+npm run test:coverage
+```
+
+CI also runs `npm run test:compat` against the built package on Node.js 18, 20, 22, 24, and 26.
+
+Build the publishable package and smoke test the output with:
+
+```sh
+npm run build
+npm run test:dist
+```
+
+The published artifact contains `dist/index.js`, `dist/index.d.ts`, and source maps. Tests, benchmarks, and examples are not published.
+
+## Releasing
+
+Releases are automated with [semantic-release](https://github.com/semantic-release/semantic-release). Push a Conventional Commit to `main` and the release workflow analyzes the commits, updates `CHANGELOG.md` and `package.json`, publishes to npm with provenance, and creates a GitHub release.
+
+The workflow needs an `NPM_TOKEN` repository secret with publish rights for the `tinytivity` package. After the first publish you can switch to npm trusted publishing and remove the token.
+
+semantic-release pushes its release commit back to `main`, so GitHub Actions must be allowed to push to that branch. If branch protection blocks the bot, the release commit stays local to the runner and publishing fails.
+
+Use `feat:`, `fix:`, `perf:`, or a `BREAKING CHANGE:` footer, depending on the change. Commits such as `chore:` and `docs:` do not create a release.
 
 ---
 

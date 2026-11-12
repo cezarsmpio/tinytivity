@@ -1,5 +1,5 @@
 import Handlebars from "handlebars";
-import { createState } from "../index.ts";
+import { createState } from "../src/index.ts";
 
 const [user, watchUser] = createState({
   name: "John",

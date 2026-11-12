@@ -1,4 +1,4 @@
-import { createState } from "../index.ts";
+import { createState } from "../src/index.ts";
 
 const [form, watchForm] = createState({
   name: "",
