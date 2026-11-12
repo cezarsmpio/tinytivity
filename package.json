@@ -1,6 +1,6 @@
 {
   "name": "tinytivity",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Tiny, zero-dependency reactive state for JavaScript. Runs on Node.js 18 and newer.",
   "type": "module",
   "license": "MIT",
